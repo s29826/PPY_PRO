@@ -81,5 +81,36 @@ class Dziennik:
                 for ocena in uczen.oceny:
                     print(ocena)
 
+    def wystaw_zagrozenie(self) -> None:
+        for uczen in self.dziennik:
+            liczba_nieobecnosci = 0
+            liczba_spoznien = 0
+            srednia = Uczen.oblicz_srednia(uczen)
+
+            for obecnosc in uczen.obecnosci.values():
+                if  obecnosc == Obecnosc.Nieobecny:
+                    liczba_nieobecnosci += 1
+                elif obecnosc == Obecnosc.Spozniony:
+                    liczba_spoznien += 1
+
+            #Zabawne te ternary są w Pythonie
+            uczen.zagrozenie = True if liczba_nieobecnosci > 2 else False
+            #Ma być spóźnień na połowie lekcji, trzeba przemyśleć jak liczyć te lekcje
+            uczen.zagrozenie = True if liczba_spoznien > 1_000_000 else False
+            uczen.zagrozenie = True if srednia < 3 else False
+
+    def wyswietl_srednia(self):
+        pesel = input("Podaj pesel ucznia, którego średnią chcesz wyświetlić: ")
+        for uczen in self.dziennik:
+            if uczen.pesel == pesel:
+                srednia = uczen.oblicz_srednia()
+                print(srednia)
+
+    def wysiwietl_status(self):
+        pesel = input("Podaj pesel ucznia, którego status chcesz wyświetlić: ")
+        for uczen in self.dziennik:
+            if uczen.pesel == pesel:
+                print(uczen.zagrozenie)
+
 
 

@@ -8,4 +8,4 @@ class Ocena():
         self.data = data
 
     def __str__(self):
-        return f"Rodzaj: {self.rodzaj}, Ocena: {self.ocena}, Data: {self.data}"
+        return f"Oceny\nRodzaj: {self.rodzaj}, Ocena: {self.ocena}, Data: {self.data}"
