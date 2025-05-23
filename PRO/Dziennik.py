@@ -93,11 +93,9 @@ class Dziennik:
                 elif obecnosc == Obecnosc.Spozniony:
                     liczba_spoznien += 1
 
-            #Zabawne te ternary są w Pythonie
-            uczen.zagrozenie = True if liczba_nieobecnosci > 2 else False
-            #Ma być spóźnień na połowie lekcji, trzeba przemyśleć jak liczyć te lekcje
-            uczen.zagrozenie = True if liczba_spoznien > 1_000_000 else False
-            uczen.zagrozenie = True if srednia < 3 else False
+            uczen.zagrozenie = (liczba_nieobecnosci > 2
+                                or liczba_spoznien > 1_000_000 #Ma być na połowie lekcji, ale jeszcze ich nie mamy
+                                or srednia < 3)
 
     def wyswietl_srednia(self):
         pesel = input("Podaj pesel ucznia, którego średnią chcesz wyświetlić: ")
