@@ -3,7 +3,7 @@ from Uczen import Uczen
 from Obecnosc import Obecnosc
 
 
-#TODO - koniecznie metoda do zwracania ucznia po PESEL-u
+#klasa zastępowana przez klasę ‘Klasa’
 class Dziennik:
     def __init__(self):
         self.dziennik = [] #Tu docelowo umieściłbym słownik, dla "numerków", ale nie jest to wymagane
