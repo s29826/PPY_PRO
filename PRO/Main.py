@@ -1,5 +1,4 @@
 import datetime
-import os
 import sys
 
 import Klasa
@@ -8,6 +7,7 @@ from CUI import *
 from Klasa import Klasa
 from Obecnosc import Obecnosc
 from Uczen import Uczen
+from Ocena import Ocena
 
 
 wybrana_klasa : Klasa = None
@@ -55,12 +55,35 @@ def dodaj_oceny():
     oceny = query_form()
     dzis = datetime.date.today()
     for idx, pesel in enumerate(lista_peseli, start = 1):
-        wybrana_klasa.wystaw_ocene(pesel, oceny[0], float(oceny[idx]), dzis)
+        if len(oceny[idx]) > 0:
+            wybrana_klasa.wystaw_ocene(pesel, oceny[0], float(oceny[idx]), dzis)
+
+def edytuj_oceny():
+    lista_peseli = wyswietl_klase()
+    numer_ucznia = query_cui()
+
+    set_indentation(1)
+    add_title("lista ocen")
+    oceny = wybrana_klasa.uczniowie[lista_peseli[numer_ucznia]].oceny
+    for idx, ocena in enumerate(oceny):
+        add_list_item(str(idx) + '. ' + ocena.__str__())
+
+    numer_oceny = query_cui()
+
+    set_indentation(1)
+    add_title("nowe wartości")
+
+    add_form_item("komentarz")
+    add_form_item("ocena")
+    add_form_item("data wystawienia (YYYY-MM-DD)")
+    wartosci = query_form()
+
+    oceny[numer_oceny] = Ocena(wartosci[0], float(wartosci[1]), datetime.date.fromisoformat(wartosci[2]))
 
 def wyswietl_szczegoly():
     lista = wyswietl_klase()
     numer = query_cui()
-    add_list_item(wybrana_klasa.uczniowie[lista[numer]].__str__())  #todo dopracować pokazywane dane
+    add_list_item(wybrana_klasa.uczniowie[lista[numer]].__str__())
     try:
         query_cui("enter by wrócić")
     except InterruptedError:
@@ -79,6 +102,7 @@ def wybor_klasy():
         wyswietl_klase()
         set_indentation(0)
         add_option_item("dodaj oceny", dodaj_oceny)
+        add_option_item("edytuj oceny", edytuj_oceny)
         add_option_item("sprawdź listę obecności", sprawdz_liste)
         add_option_item("dodaj ucznia do klasy", dodaj_ucznia)
         add_option_item("szczegóły ucznia", wyswietl_szczegoly)
