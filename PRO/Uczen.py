@@ -9,6 +9,8 @@ matplotlib.use('TkAgg') # bez tego rzuca err, rozwiazanie:
 import matplotlib.pyplot as plt
 from pandas import ExcelWriter
 
+from argparse import ArgumentError
+
 from Obecnosc import Obecnosc
 from Ocena import Ocena
 from datetime import date, datetime
@@ -30,7 +32,7 @@ class Uczen:
 
     def __init__(self, imie: str, nazwisko: str, pesel: str):
         if not Uczen.poprawny_pesel(pesel):
-            pass #raise ArgumentError todo wyłączone na potrzeby testów
+            raise ArgumentError
 
         self.imie = imie
         self.nazwisko = nazwisko
@@ -115,7 +117,7 @@ class Uczen:
         except ArithmeticError:
             srednia = "*brak ocen*"
 
-        text = f"Imię: {self.imie}\nNazwisko: {self.nazwisko}\nŚrednia ocen: {srednia}\nZagrożenie: {self.czy_zagrozony()}\nObecność:\n"
+        text = f"Imię: {self.imie}\nNazwisko: {self.nazwisko}\nPESEL: {self.pesel}\nŚrednia ocen: {srednia}\nZagrożenie: {self.czy_zagrozony()}\nObecność:\n"
         for obecnosc in self.obecnosci:
             text += f"{obecnosc} {self.obecnosci[obecnosc].__str__().removeprefix("Obecnosc.")}\n"
         text += '\nOceny:\n'

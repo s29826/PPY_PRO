@@ -28,10 +28,16 @@ def wyswietl_klase():
         return lista_peseli
 
 def dodaj_ucznia():
-    add_form_item("imię")
-    add_form_item("nazwisko")
-    add_form_item("PESEL")
-    input_data = query_form()
+    add_form_item("imię", str.isalpha)
+    add_form_item("nazwisko", str.isalpha)
+    add_form_item("PESEL", Uczen.poprawny_pesel)
+    try:
+        input_data = query_form()
+    except ValueError:
+        add_list_item("nieprawidłowe dane, uczeń nie został dodany\n")
+        query_cui("potwierdź")
+        return
+
     wybrana_klasa.dodaj_ucznia(Uczen(input_data[0], input_data[1], input_data[2]))
 
 def sprawdz_liste():
@@ -51,14 +57,18 @@ def dodaj_oceny():
 
     lista_peseli = list(wybrana_klasa.uczniowie.keys())
     for pesel in lista_peseli:
-        add_form_item(wybrana_klasa.uczniowie[pesel].krotki_string())
-    oceny = query_form()
+        add_form_item(wybrana_klasa.uczniowie[pesel].krotki_string(), Ocena.walidacja)
+    oceny = query_form(nothrow = True)
+
     dzis = datetime.date.today()
     for idx, pesel in enumerate(lista_peseli, start = 1):
         if len(oceny[idx]) > 0:
-            wybrana_klasa.wystaw_ocene(pesel, oceny[0], float(oceny[idx]), dzis)
+            try:
+                wybrana_klasa.wystaw_ocene(pesel, oceny[0], float(oceny[idx]), dzis)
+            except ValueError:
+                pass
 
-def edytuj_oceny():
+def wybierz_ocene() -> (list, int):
     lista_peseli = wyswietl_klase()
     numer_ucznia = query_cui()
 
@@ -69,16 +79,36 @@ def edytuj_oceny():
         add_list_item(str(idx) + '. ' + ocena.__str__())
 
     numer_oceny = query_cui()
+    return oceny, numer_oceny
 
-    set_indentation(1)
-    add_title("nowe wartości")
+def edytuj_oceny():
+    oceny, numer_oceny = wybierz_ocene()
 
-    add_form_item("komentarz")
-    add_form_item("ocena")
-    add_form_item("data wystawienia (YYYY-MM-DD)")
-    wartosci = query_form()
+    while True:
+        set_indentation(1)
+        add_title("nowe wartości")
 
-    oceny[numer_oceny] = Ocena(wartosci[0], float(wartosci[1]), datetime.date.fromisoformat(wartosci[2]))
+        add_form_item("komentarz")
+        add_form_item("ocena", Ocena.walidacja)
+        add_form_item("data wystawienia (YYYY-MM-DD)")
+        try:
+            wartosci = query_form()
+        except ValueError:
+            continue
+
+        oceny[numer_oceny] = Ocena(wartosci[0], float(wartosci[1]), datetime.date.fromisoformat(wartosci[2]))
+        break
+
+def usun_ocene():
+    oceny, numer_oceny = wybierz_ocene()
+    del oceny[numer_oceny]
+
+def menu_edycji_ocen():
+    add_option_item("dodaj oceny", dodaj_oceny)
+    add_option_item("edytuj istniejącą ocenę", edytuj_oceny)
+    add_option_item("usuń ocenę", usun_ocene)
+    add_option_item("powrót", lambda: None)
+    query_cui_callback()
 
 def wyswietl_szczegoly():
     lista = wyswietl_klase()
@@ -131,20 +161,25 @@ def wygeneruj_wykres_sredniej_klasy():
     except InterruptedError:
         clear_cui()
 
-def powrot():
+def powrot() -> None:
     raise InterruptedError
 
 def wybor_klasy():
-    for klasa in Klasa.lista_klas():
-        add_option_item(klasa.nazwa)
     global wybrana_klasa
-    wybrana_klasa = Klasa.lista_klas()[query_cui()]
+    wybrana_klasa = None
+    while wybrana_klasa is None:
+        for klasa in Klasa.lista_klas():
+            add_option_item(klasa.nazwa)
+        try:
+            wybrana_klasa = Klasa.lista_klas()[query_cui()]
+        except InterruptedError:
+            clear_cui()
+            continue
 
     while True:
         wyswietl_klase()
         set_indentation(0)
-        add_option_item("dodaj oceny", dodaj_oceny)
-        add_option_item("edytuj oceny", edytuj_oceny)
+        add_option_item("edytuj oceny", menu_edycji_ocen)
         add_option_item("sprawdź listę obecności", sprawdz_liste)
         add_option_item("dodaj ucznia do klasy", dodaj_ucznia)
         add_option_item("szczegóły ucznia", wyswietl_szczegoly)

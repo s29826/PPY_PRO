@@ -1,6 +1,6 @@
+from argparse import ArgumentError
 from enum import Enum
 
-#Nie wiem, czy ten Enum ma tutaj sens, do przemyślenia
 class Obecnosc(Enum):
     Nieobecny = 0
     Spozniony = 1
@@ -18,4 +18,4 @@ class Obecnosc(Enum):
                 return Obecnosc.Usprawiedliwiony
             case "s":
                 return Obecnosc.Spozniony
-        return None
+        raise ArgumentError

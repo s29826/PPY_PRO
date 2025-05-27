@@ -18,8 +18,11 @@ def add_option_item(text : str, item : any = None) -> None:
     print('\t' * indentation + str(len(option_items)) + ' ' + text)
     option_items.append(item)
 
-def add_form_item(text : str) -> None:
-    option_items.append(text)
+def pass_everything(ignored : any) -> bool:
+    return True
+
+def add_form_item(text : str, validation_func : callable = pass_everything) -> None:
+    option_items.append((text, validation_func))
 
 def __query_common(prompt : str) -> int:
     user_input = input(prompt)
@@ -42,25 +45,36 @@ def query_cui_callback(prompt : str = "Wybór: ") -> None:
     callback()
 
 #traktuje pola dodane przez add_form_item jako kolejne pola formularza, a po wypełnieniu przez użytkownika zwraca listę stringów z wartościami pól
-def query_form() -> list:
+def query_form(nothrow : bool = False) -> list:
     option_count = len(option_items)
     if option_count == 1:
-        return list(input(option_items[0] + ": "))
+        response = input(option_items[0][0] + ": ")
+        if not nothrow and not option_items[0][1](response):
+            raise ValueError
+        return list(response)
 
     fields_done = 0
     fields_values = list()
+    invalid_data = False
     while fields_done < option_count:
         clear_display()
         for i in range(fields_done):
-            print(option_items[i] + ': ' + fields_values[i])
+            print(option_items[i][0] + ': ' + fields_values[i])
 
         for i in range(option_count - fields_done):
-            print(option_items[i + fields_done] + ": ")
+            print(option_items[i + fields_done][0] + ": ")
 
-        fields_values.append(input('\n' + option_items[fields_done] + ": "))
+        response = input('\n' + option_items[fields_done][0] + ": ")
+        if not option_items[fields_done][1](response):
+            invalid_data = True and not nothrow
+            fields_values.append('*nieprawidłowe dane*')
+        else:
+            fields_values.append(response)
         fields_done = fields_done + 1
 
     clear_cui()
+    if invalid_data:
+        raise ValueError
     return fields_values
 
 
