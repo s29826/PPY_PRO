@@ -89,6 +89,48 @@ def wyswietl_szczegoly():
     except InterruptedError:
         clear_cui()
 
+def wygeneruj_raport_ucznia():
+    lista = wyswietl_klase()
+    numer = query_cui()
+
+    uczen = wybrana_klasa.uczniowie[lista[numer]]
+    uczen.wygeneruj_raport()
+    add_title("raport wygenerowany pomyślnie\n")
+    try:
+        query_cui("enter by wrócić")
+    except InterruptedError:
+        clear_cui()
+
+def wygeneruj_wykres_kolowy_frekewencji_ucznia():
+    lista = wyswietl_klase()
+    numer = query_cui()
+
+    uczen = wybrana_klasa.uczniowie[lista[numer]]
+    uczen.wygeneruj_wykres_frekwencji()
+    try:
+        query_cui("enter by wrócić")
+    except InterruptedError:
+        clear_cui()
+
+def wygeneruj_histogram_ocen_ucznia():
+    lista = wyswietl_klase()
+    numer = query_cui()
+
+    uczen = wybrana_klasa.uczniowie[lista[numer]]
+    uczen.wygenereuj_wykres_ocen()
+    try:
+        query_cui("enter by wrócić")
+    except InterruptedError:
+        clear_cui()
+
+def wygeneruj_wykres_sredniej_klasy():
+    klasa = wybrana_klasa
+    klasa.wygeneruj_wykres_srednich()
+    try:
+        query_cui("enter by wrócić")
+    except InterruptedError:
+        clear_cui()
+
 def powrot():
     raise InterruptedError
 
@@ -106,6 +148,10 @@ def wybor_klasy():
         add_option_item("sprawdź listę obecności", sprawdz_liste)
         add_option_item("dodaj ucznia do klasy", dodaj_ucznia)
         add_option_item("szczegóły ucznia", wyswietl_szczegoly)
+        add_option_item("wygeneruj raport ucznia", wygeneruj_raport_ucznia)
+        add_option_item("wygeneruj wykres frekwencji ucznia", wygeneruj_wykres_kolowy_frekewencji_ucznia)
+        add_option_item("wygeneruj wykres ocen ucznia", wygeneruj_histogram_ocen_ucznia)
+        add_option_item("wygeneruj wykres średniej klasy", wygeneruj_wykres_sredniej_klasy)
         add_option_item("powrót", powrot)
         try:
             query_cui_callback()

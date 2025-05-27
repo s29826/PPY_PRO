@@ -1,6 +1,17 @@
+from collections import Counter
+
+import matplotlib
+import pandas as pd
+
+matplotlib.use('TkAgg') # bez tego rzuca err, rozwiazanie:
+# https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/issues/2411
+
+import matplotlib.pyplot as plt
+from pandas import ExcelWriter
+
 from Obecnosc import Obecnosc
 from Ocena import Ocena
-from datetime import date
+from datetime import date, datetime
 
 
 class Uczen:
@@ -56,6 +67,44 @@ class Uczen:
 
         return srednia < 3 or nieobecnosci > 2 or spoznienia > (len(self.obecnosci) / 2)
 
+    def wygeneruj_raport(self) -> None:
+        timestamp = datetime.now().timestamp()
+        file_name = f"{self.nazwisko}{timestamp}.xlsx"
+
+        df_obecnosci = pd.DataFrame([
+            {"Data" : data, "Obecność" : obecnosc.name}
+            for data, obecnosc in self.obecnosci.items()
+        ])
+
+        df_oceny = pd.DataFrame([
+            {"Komentarz" : ocena.rodzaj, "Ocena" : ocena.ocena, "Data" : ocena.data}
+            for ocena in self.oceny
+        ])
+
+        with ExcelWriter(file_name) as writer:
+            df_obecnosci.to_excel(writer, sheet_name='Obecności', index=False, header=True)
+            df_oceny.to_excel(writer, sheet_name="Oceny", index=False, header=True)
+
+    def wygeneruj_wykres_frekwencji(self) -> None:
+        obenosci = [obecnosc.name for obecnosc in self.obecnosci.values()]
+        count = Counter(obenosci)
+
+        label = list(count.keys())
+        counter = list(count.values())
+
+        plt.pie(counter, labels=label, autopct='%1.1f%%')
+        plt.title(f"Wykres kołowy frekwencji ucznia {self.krotki_string()}")
+        plt.tight_layout()
+        plt.show()
+
+    def wygenereuj_wykres_ocen(self) -> None:
+        oceny = [ocena.ocena for ocena in self.oceny]
+
+        plt.hist(oceny, color='green', rwidth=0.5, range=(2, 6))
+        plt.title(f"Histogram ocen ucznia {self.krotki_string()}")
+        plt.xlabel("Ocena")
+        plt.tight_layout()
+        plt.show()
 
     def krotki_string(self):
         return f"{self.imie} {self.nazwisko}"
