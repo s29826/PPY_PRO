@@ -108,7 +108,7 @@ class Uczen:
         plt.tight_layout()
         plt.show()
 
-    def krotki_string(self):
+    def krotki_string(self) -> str:
         return f"{self.imie} {self.nazwisko}"
 
     def __str__(self):

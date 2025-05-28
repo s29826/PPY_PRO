@@ -8,7 +8,7 @@ class Obecnosc(Enum):
     Usprawiedliwiony = 3
 
     @staticmethod
-    def ze_skrotu(skrot : str):
+    def ze_skrotu(skrot : str) -> 'Obecnosc':
         match skrot.lower():
             case 'o':
                 return Obecnosc.Obecny

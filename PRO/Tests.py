@@ -43,7 +43,7 @@ def generuj_pesel() -> str:
     kontrola = (10 - (kontrola % 10)) % 10
     return dziesiec_pierwszych + str(kontrola)
 
-def dodaj_dane_testowe():
+def dodaj_dane_testowe() -> None:
     klasa1 = Klasa("1a")
     klasa2 = Klasa("1b")
     klasa3 = Klasa("2a")

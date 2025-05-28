@@ -13,7 +13,7 @@ class Klasa:
         self.uczniowie = dict()
 
     @staticmethod
-    def lista_klas():
+    def lista_klas() -> list:
         return Klasa.klasy
 
     def dodaj_ucznia(self, uczen : Uczen) -> None:

@@ -4,13 +4,13 @@ option_items : list = []
 header = "DZIENNIK OCEN"
 indentation = 0
 
-def clear_display():
+def clear_display() -> None:
     global indentation
     indentation = 0
     os.system('cls' if os.name == 'nt' else 'clear')
     print(header, end = "\n\n")
 
-def clear_cui():
+def clear_cui() -> None:
     clear_display()
     option_items.clear()
 

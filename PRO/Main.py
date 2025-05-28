@@ -12,7 +12,7 @@ from Ocena import Ocena
 
 wybrana_klasa : Klasa = None
 
-def wyswietl_klase():
+def wyswietl_klase() -> list:
     add_title("klasa " + wybrana_klasa.nazwa)
 
     if len(wybrana_klasa.uczniowie) == 0:
@@ -27,7 +27,7 @@ def wyswietl_klase():
         add_list_item("")
         return lista_peseli
 
-def dodaj_ucznia():
+def dodaj_ucznia() -> None:
     add_form_item("imię", str.isalpha)
     add_form_item("nazwisko", str.isalpha)
     add_form_item("PESEL", Uczen.poprawny_pesel)
@@ -46,10 +46,10 @@ def wybierz_ucznia() -> Uczen:
     nr_ucznia = query_cui(limit = len(lista_peseli))
     return wybrana_klasa.uczniowie[lista_peseli[nr_ucznia]]
 
-def usun_ucznia():
+def usun_ucznia() -> None:
     wybrana_klasa.usun_ucznia(wybierz_ucznia().pesel)
 
-def sprawdz_liste():
+def sprawdz_liste() -> None:
     lista_peseli = list(wybrana_klasa.uczniowie.keys())
     for pesel in lista_peseli:
         add_form_item(wybrana_klasa.uczniowie[pesel].krotki_string())
@@ -60,7 +60,7 @@ def sprawdz_liste():
         obecnosc : Obecnosc = Obecnosc.ze_skrotu(obecnosci[idx])
         wybrana_klasa.uczniowie[pesel].obecnosci[dzis] = obecnosc
 
-def dodaj_oceny():
+def dodaj_oceny() -> None:
     add_form_item("komentarz")
     add_list_item("\n")
 
@@ -96,7 +96,7 @@ def czy_poprawna_data(data : str) -> bool:
     except ValueError:
         return False
 
-def edytuj_oceny():
+def edytuj_oceny() -> None:
     oceny, numer_oceny = wybierz_ocene()
 
     while True:
@@ -116,11 +116,11 @@ def edytuj_oceny():
         oceny[numer_oceny] = Ocena(wartosci[0], float(wartosci[1]), datetime.date.fromisoformat(wartosci[2]))
         break
 
-def usun_ocene():
+def usun_ocene() -> None:
     oceny, numer_oceny = wybierz_ocene()
     del oceny[numer_oceny]
 
-def menu_edycji_ocen():
+def menu_edycji_ocen() -> None:
     add_option_item("dodaj oceny", dodaj_oceny)
     add_option_item("edytuj istniejącą ocenę", edytuj_oceny)
     add_option_item("usuń ocenę", usun_ocene)
@@ -130,7 +130,7 @@ def menu_edycji_ocen():
     except InterruptedError:
         clear_cui()
 
-def wyswietl_szczegoly():
+def wyswietl_szczegoly() -> None:
     uczen = wybierz_ucznia()
     add_list_item(uczen.__str__())
     try:
@@ -138,7 +138,7 @@ def wyswietl_szczegoly():
     except InterruptedError:
         clear_cui()
 
-def wygeneruj_raport_ucznia():
+def wygeneruj_raport_ucznia() -> None:
     uczen = wybierz_ucznia()
     uczen.wygeneruj_raport()
     add_title("raport wygenerowany pomyślnie\n")
@@ -147,7 +147,7 @@ def wygeneruj_raport_ucznia():
     except InterruptedError:
         clear_cui()
 
-def wygeneruj_wykres_kolowy_frekewencji_ucznia():
+def wygeneruj_wykres_kolowy_frekewencji_ucznia() -> None:
     uczen = wybierz_ucznia()
     uczen.wygeneruj_wykres_frekwencji()
     try:
@@ -155,7 +155,7 @@ def wygeneruj_wykres_kolowy_frekewencji_ucznia():
     except InterruptedError:
         clear_cui()
 
-def wygeneruj_histogram_ocen_ucznia():
+def wygeneruj_histogram_ocen_ucznia() -> None:
     uczen = wybierz_ucznia()
     uczen.wygenereuj_wykres_ocen()
     try:
@@ -163,7 +163,7 @@ def wygeneruj_histogram_ocen_ucznia():
     except InterruptedError:
         clear_cui()
 
-def wygeneruj_wykres_sredniej_klasy():
+def wygeneruj_wykres_sredniej_klasy() -> None:
     klasa = wybrana_klasa
     klasa.wygeneruj_wykres_srednich()
     try:
@@ -171,7 +171,7 @@ def wygeneruj_wykres_sredniej_klasy():
     except InterruptedError:
         clear_cui()
 
-def menu_statystyk():
+def menu_statystyk() -> None:
     add_option_item("wygeneruj raport ucznia", wygeneruj_raport_ucznia)
     add_option_item("wygeneruj wykres frekwencji ucznia", wygeneruj_wykres_kolowy_frekewencji_ucznia)
     add_option_item("wygeneruj wykres ocen ucznia", wygeneruj_histogram_ocen_ucznia)
@@ -182,7 +182,7 @@ def menu_statystyk():
 def powrot() -> None:
     raise InterruptedError
 
-def wybor_klasy():
+def wybor_klasy() -> None:
     global wybrana_klasa
     wybrana_klasa = None
     lista_klas = Klasa.lista_klas()
@@ -211,7 +211,7 @@ def wybor_klasy():
             break
 
 
-def on_exit():
+def on_exit() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
     sys.exit(0)
 
