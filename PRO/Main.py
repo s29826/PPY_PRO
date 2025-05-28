@@ -49,6 +49,25 @@ def wybierz_ucznia() -> Uczen:
 def usun_ucznia() -> None:
     wybrana_klasa.usun_ucznia(wybierz_ucznia().pesel)
 
+def edytuj_ucznia() -> None:
+    uczen = wybierz_ucznia()
+    add_form_item("imię", str.isalpha)
+    add_form_item("nazwisko", str.isalpha)
+    nowe_dane = query_form()
+    uczen.imie = nowe_dane[0]
+    uczen.nazwisko = nowe_dane[1]
+
+def menu_edycji_uczniow() -> None:
+    add_option_item("dodaj ucznia do klasy", dodaj_ucznia)
+    add_option_item("edytuj dane ucznia", edytuj_ucznia)
+    add_option_item("usuń ucznia z klasy", usun_ucznia)
+    add_option_item("powrót", lambda: None)
+    try:
+        query_cui_callback()
+    except InterruptedError:
+        clear_cui()
+
+
 def sprawdz_liste() -> None:
     lista_peseli = list(wybrana_klasa.uczniowie.keys())
     for pesel in lista_peseli:
@@ -57,8 +76,25 @@ def sprawdz_liste() -> None:
     dzis = datetime.date.today()
     obecnosci = query_form()
     for idx, pesel in enumerate(lista_peseli):
-        obecnosc : Obecnosc = Obecnosc.ze_skrotu(obecnosci[idx])
+        try:
+            obecnosc : Obecnosc = Obecnosc.ze_skrotu(obecnosci[idx])
+        except TypeError:
+            continue
         wybrana_klasa.uczniowie[pesel].obecnosci[dzis] = obecnosc
+
+def edytuj_obecnosc() -> None:
+    uczen = wybierz_ucznia()
+
+    add_form_item("data (YYYY-MM-DD)", czy_poprawna_data)
+    add_form_item("obecność (O – obecny, N – nieobecny, S – spóźniony, U - usprawiedliwiony)")
+    try:
+        dane = query_form()
+    except ValueError:
+        return
+    try:
+        uczen.obecnosci[datetime.date.fromisoformat(dane[0])] = Obecnosc.ze_skrotu(dane[1])
+    except TypeError:
+        return
 
 def dodaj_oceny() -> None:
     add_form_item("komentarz")
@@ -200,8 +236,8 @@ def wybor_klasy() -> None:
         set_indentation(0)
         add_option_item("edytuj oceny", menu_edycji_ocen)
         add_option_item("sprawdź listę obecności", sprawdz_liste)
-        add_option_item("dodaj ucznia do klasy", dodaj_ucznia)
-        add_option_item("usuń ucznia z klasy", usun_ucznia)
+        add_option_item("edytuj obecności", edytuj_obecnosc)
+        add_option_item("edytuj dane uczniów", menu_edycji_uczniow)
         add_option_item("szczegóły ucznia", wyswietl_szczegoly)
         add_option_item("generuj statystyki", menu_statystyk)
         add_option_item("powrót", powrot)

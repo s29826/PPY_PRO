@@ -1,4 +1,3 @@
-from argparse import ArgumentError
 from enum import Enum
 
 class Obecnosc(Enum):
@@ -18,4 +17,4 @@ class Obecnosc(Enum):
                 return Obecnosc.Usprawiedliwiony
             case "s":
                 return Obecnosc.Spozniony
-        raise ArgumentError
+        raise TypeError
