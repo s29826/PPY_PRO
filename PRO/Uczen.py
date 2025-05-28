@@ -113,7 +113,7 @@ class Uczen:
 
     def __str__(self):
         try:
-            srednia = str(self.oblicz_srednia())
+            srednia = str.format('%1.2f' % self.oblicz_srednia())
         except ArithmeticError:
             srednia = "*brak ocen*"
 

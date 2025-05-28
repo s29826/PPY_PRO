@@ -17,7 +17,7 @@ def wyswietl_klase():
 
     if len(wybrana_klasa.uczniowie) == 0:
         add_list_item("*pusta*\n")
-        return None
+        return list()
     else:
         lista_peseli = []
         set_indentation(1)
@@ -39,6 +39,15 @@ def dodaj_ucznia():
         return
 
     wybrana_klasa.dodaj_ucznia(Uczen(input_data[0], input_data[1], input_data[2]))
+
+#wyświetla listę uczniów danej klasy i zwraca pesel jednego, wybranego przez użytkownika
+def wybierz_ucznia() -> Uczen:
+    lista_peseli = wyswietl_klase()
+    nr_ucznia = query_cui(limit = len(lista_peseli))
+    return wybrana_klasa.uczniowie[lista_peseli[nr_ucznia]]
+
+def usun_ucznia():
+    wybrana_klasa.usun_ucznia(wybierz_ucznia().pesel)
 
 def sprawdz_liste():
     lista_peseli = list(wybrana_klasa.uczniowie.keys())
@@ -69,17 +78,23 @@ def dodaj_oceny():
                 pass
 
 def wybierz_ocene() -> (list, int):
-    lista_peseli = wyswietl_klase()
-    numer_ucznia = query_cui()
+    uczen = wybierz_ucznia()
 
     set_indentation(1)
     add_title("lista ocen")
-    oceny = wybrana_klasa.uczniowie[lista_peseli[numer_ucznia]].oceny
+    oceny = uczen.oceny
     for idx, ocena in enumerate(oceny):
         add_list_item(str(idx) + '. ' + ocena.__str__())
 
-    numer_oceny = query_cui()
+    numer_oceny = query_cui(limit = len(oceny))
     return oceny, numer_oceny
+
+def czy_poprawna_data(data : str) -> bool:
+    try:
+        datetime.date.fromisoformat(data)
+        return True
+    except ValueError:
+        return False
 
 def edytuj_oceny():
     oceny, numer_oceny = wybierz_ocene()
@@ -90,11 +105,13 @@ def edytuj_oceny():
 
         add_form_item("komentarz")
         add_form_item("ocena", Ocena.walidacja)
-        add_form_item("data wystawienia (YYYY-MM-DD)")
+        add_form_item("data wystawienia (YYYY-MM-DD)", czy_poprawna_data)
         try:
             wartosci = query_form()
         except ValueError:
-            continue
+            add_list_item("niepoprawne dane, ocena nie została zmodyfikowana")
+            query_cui("potwierdź")
+            return
 
         oceny[numer_oceny] = Ocena(wartosci[0], float(wartosci[1]), datetime.date.fromisoformat(wartosci[2]))
         break
@@ -108,22 +125,21 @@ def menu_edycji_ocen():
     add_option_item("edytuj istniejącą ocenę", edytuj_oceny)
     add_option_item("usuń ocenę", usun_ocene)
     add_option_item("powrót", lambda: None)
-    query_cui_callback()
+    try:
+        query_cui_callback()
+    except InterruptedError:
+        clear_cui()
 
 def wyswietl_szczegoly():
-    lista = wyswietl_klase()
-    numer = query_cui()
-    add_list_item(wybrana_klasa.uczniowie[lista[numer]].__str__())
+    uczen = wybierz_ucznia()
+    add_list_item(uczen.__str__())
     try:
         query_cui("enter by wrócić")
     except InterruptedError:
         clear_cui()
 
 def wygeneruj_raport_ucznia():
-    lista = wyswietl_klase()
-    numer = query_cui()
-
-    uczen = wybrana_klasa.uczniowie[lista[numer]]
+    uczen = wybierz_ucznia()
     uczen.wygeneruj_raport()
     add_title("raport wygenerowany pomyślnie\n")
     try:
@@ -132,10 +148,7 @@ def wygeneruj_raport_ucznia():
         clear_cui()
 
 def wygeneruj_wykres_kolowy_frekewencji_ucznia():
-    lista = wyswietl_klase()
-    numer = query_cui()
-
-    uczen = wybrana_klasa.uczniowie[lista[numer]]
+    uczen = wybierz_ucznia()
     uczen.wygeneruj_wykres_frekwencji()
     try:
         query_cui("enter by wrócić")
@@ -143,10 +156,7 @@ def wygeneruj_wykres_kolowy_frekewencji_ucznia():
         clear_cui()
 
 def wygeneruj_histogram_ocen_ucznia():
-    lista = wyswietl_klase()
-    numer = query_cui()
-
-    uczen = wybrana_klasa.uczniowie[lista[numer]]
+    uczen = wybierz_ucznia()
     uczen.wygenereuj_wykres_ocen()
     try:
         query_cui("enter by wrócić")
@@ -161,17 +171,26 @@ def wygeneruj_wykres_sredniej_klasy():
     except InterruptedError:
         clear_cui()
 
+def menu_statystyk():
+    add_option_item("wygeneruj raport ucznia", wygeneruj_raport_ucznia)
+    add_option_item("wygeneruj wykres frekwencji ucznia", wygeneruj_wykres_kolowy_frekewencji_ucznia)
+    add_option_item("wygeneruj wykres ocen ucznia", wygeneruj_histogram_ocen_ucznia)
+    add_option_item("wygeneruj wykres średniej klasy", wygeneruj_wykres_sredniej_klasy)
+    add_option_item("powrót", lambda: None)
+    query_cui_callback()
+
 def powrot() -> None:
     raise InterruptedError
 
 def wybor_klasy():
     global wybrana_klasa
     wybrana_klasa = None
+    lista_klas = Klasa.lista_klas()
     while wybrana_klasa is None:
-        for klasa in Klasa.lista_klas():
+        for klasa in lista_klas:
             add_option_item(klasa.nazwa)
         try:
-            wybrana_klasa = Klasa.lista_klas()[query_cui()]
+            wybrana_klasa = lista_klas[query_cui(limit = len(lista_klas))]
         except InterruptedError:
             clear_cui()
             continue
@@ -182,11 +201,9 @@ def wybor_klasy():
         add_option_item("edytuj oceny", menu_edycji_ocen)
         add_option_item("sprawdź listę obecności", sprawdz_liste)
         add_option_item("dodaj ucznia do klasy", dodaj_ucznia)
+        add_option_item("usuń ucznia z klasy", usun_ucznia)
         add_option_item("szczegóły ucznia", wyswietl_szczegoly)
-        add_option_item("wygeneruj raport ucznia", wygeneruj_raport_ucznia)
-        add_option_item("wygeneruj wykres frekwencji ucznia", wygeneruj_wykres_kolowy_frekewencji_ucznia)
-        add_option_item("wygeneruj wykres ocen ucznia", wygeneruj_histogram_ocen_ucznia)
-        add_option_item("wygeneruj wykres średniej klasy", wygeneruj_wykres_sredniej_klasy)
+        add_option_item("generuj statystyki", menu_statystyk)
         add_option_item("powrót", powrot)
         try:
             query_cui_callback()

@@ -32,14 +32,19 @@ def __query_common(prompt : str) -> int:
     return int(user_input)
 
 #daje użytkownikowi wybór spośród opcji dostarczonych przez add_option_item i zwraca wybrany indeks
-def query_cui(prompt : str = "Wybór: ") -> int:
+def query_cui(prompt : str = "Wybór: ", limit : int = 99) -> int:
     user_input = __query_common(prompt)
+    while user_input >= limit:
+        user_input = __query_common(prompt)
     clear_cui()
     return user_input
 
 #daje użytkownikowi wybór spośród opcji dostarczonych przez add_option_item zakładając, że są to callbacki, po czym przekazuje kontrolę do wybranego callbacku
 def query_cui_callback(prompt : str = "Wybór: ") -> None:
     option_idx = __query_common(prompt)
+    while option_idx >= len(option_items):
+        option_idx = __query_common(prompt)
+
     callback = option_items[option_idx]
     clear_cui()
     callback()
