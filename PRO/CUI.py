@@ -25,11 +25,15 @@ def add_form_item(text : str, validation_func : callable = pass_everything) -> N
     option_items.append((text, validation_func))
 
 def __query_common(prompt : str) -> int:
-    user_input = input(prompt)
-    if len(user_input) == 0:
-        raise InterruptedError
+    while True:
+        user_input = input(prompt)
+        if len(user_input) == 0:
+            raise InterruptedError
 
-    return int(user_input)
+        try:
+            return int(user_input)
+        except ValueError:
+            pass
 
 #daje użytkownikowi wybór spośród opcji dostarczonych przez add_option_item i zwraca wybrany indeks
 def query_cui(prompt : str = "Wybór: ", limit : int = 99) -> int:
